@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import google.generativeai as genai
-import os
 
-app = FastAPI(title="Device OSINT API")
+app = FastAPI(title="Device OSINT Analyzer API")
 
-# Gemini API Key (Render environment variable)
-API_KEY = os.getenv("GEMINI_API_KEY")
+# 🔑 Gemini API Key (direct code me)
+API_KEY = "AIzaSyDkiv9RgjPoN4GWiBBg4H2lwcIwJdLZfNM"
 
 genai.configure(api_key=API_KEY)
 
@@ -19,20 +18,26 @@ class DeviceRequest(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Device OSINT API running"}
+    return {
+        "status": "running",
+        "api": "Device OSINT Analyzer",
+        "endpoint": "/device-osint"
+    }
 
 
 @app.post("/device-osint")
-def device_osint(data: DeviceRequest):
+def device_osint(request: DeviceRequest):
+
+    device = request.device_name
 
     prompt = f"""
-Bro give me a metadata json osint deep analysis report of device name {data.device_name}
+Bro give me a metadata json osint deep analysis report of device name {device}
 only in json form accepted.
 """
 
     response = model.generate_content(prompt)
 
     return {
-        "device": data.device_name,
-        "osint_report": response.text
+        "device": device,
+        "report": response.text
     }
